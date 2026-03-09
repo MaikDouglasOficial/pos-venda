@@ -43,12 +43,11 @@ async function handleLogin(event) {
       }),
     });
 
+    const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      loginError.textContent = "Usuario ou senha invalidos.";
+      loginError.textContent = data.message || "Usuario ou senha invalidos.";
       return;
     }
-
-    const data = await response.json();
     localStorage.setItem(LOGIN_TOKEN_KEY, data.token);
     window.location.href = "/index.html";
   } catch (error) {

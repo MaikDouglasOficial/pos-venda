@@ -139,7 +139,7 @@ function validateName() {
 function validatePhone() {
   const digits = getPhoneDigits();
   if (digits.length !== 11) {
-    phoneError.textContent = "Informe um telefone valido com DDD.";
+    phoneError.textContent = "Informe um telefone válido com DDD.";
     return false;
   }
   phoneError.textContent = "";

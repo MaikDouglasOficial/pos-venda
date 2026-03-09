@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pos-venda - WhatsApp</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Work+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="brand-strip"></div>
+    <div class="page">
+      <div class="topbar">
+        <div class="topbar-text">
+          <span class="topbar-title">Painel de Pós-Venda</span>
+          <span class="topbar-subtitle">Gestao de mensagens no WhatsApp</span>
+        </div>
+        <div class="topbar-user">
+          <span id="loggedUser" class="topbar-greeting"></span>
+          <button type="button" class="btn danger" id="logoutBtn">Sair</button>
+        </div>
+      </div>
+
+      <main class="content">
+        <section class="panel">
+          <h2>Mensagem de pós-venda</h2>
+          <form id="messageForm" class="form" novalidate>
+            <div class="field">
+              <label for="name">Nome do cliente</label>
+              <input id="name" name="name" type="text" placeholder="Digite o nome do cliente" />
+              <small class="error" id="nameError"></small>
+            </div>
+
+            <div class="field">
+              <label for="phone">WhatsApp do cliente</label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                placeholder="(63) 99999-9999"
+                inputmode="numeric"
+                maxlength="15"
+              />
+              <small class="error" id="phoneError"></small>
+            </div>
+
+            <div class="field">
+              <label for="message">Mensagem</label>
+              <textarea
+                id="message"
+                name="message"
+                rows="5"
+                placeholder="A mensagem será gerada automaticamente."
+              ></textarea>
+              <small class="hint">Edite antes de enviar, se quiser.</small>
+              <button type="button" class="btn ghost save-default" id="saveMessageBtn">
+                Salvar como padrão
+              </button>
+            </div>
+            <div class="field toggle-edit">
+              <label class="toggle-label">
+                <input id="toggleMessage" type="checkbox" />
+                Editar mensagem antes de enviar
+              </label>
+            </div>
+
+            <div class="actions">
+              <button type="button" class="btn ghost" id="copyBtn">Copiar texto</button>
+              <button type="submit" class="btn primary">Enviar mensagem no WhatsApp</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel history">
+          <div class="history-header">
+            <h2>Mensagens enviadas</h2>
+            <input
+              id="historyDate"
+              name="historyDate"
+              type="date"
+              class="history-filter"
+              aria-label="Filtrar por data"
+            />
+          </div>
+          <ul id="historyList" class="history-list"></ul>
+          <div id="historyPagination" class="history-pagination"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

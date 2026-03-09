@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - Pos-venda</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Work+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="login.css" />
+  </head>
+  <body>
+    <div class="brand-strip"></div>
+    <div class="login-wrapper">
+      <div class="login-card">
+        <p class="eyebrow">Acesso restrito</p>
+        <h1>Entre para continuar</h1>
+        <p class="subtitle">Insira seu usuario e senha para fazer login</p>
+
+        <form id="loginForm" class="form" novalidate>
+          <div class="field">
+            <label for="username">Usuario</label>
+            <input id="username" name="username" type="text" placeholder="Digite seu usuario" />
+            <small class="error" id="userError"></small>
+          </div>
+
+          <div class="field">
+            <label for="password">Senha</label>
+            <input id="password" name="password" type="password" placeholder="Digite sua senha" />
+            <small class="error" id="passError"></small>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn primary">Entrar</button>
+          </div>
+          <small class="error" id="loginError"></small>
+        </form>
+      </div>
+    </div>
+
+    <script src="login.js"></script>
+  </body>
+</html>

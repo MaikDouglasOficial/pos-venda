@@ -30,6 +30,8 @@ Sistema web simples para criar e enviar mensagens de pos-venda via WhatsApp, com
 
 As rotas de login e verificacao sao servidas pelas funcoes em `/api`.
 
+\- Atualizacao para forcar redeploy.
+
 ## Funcionalidades
 
 - Campo nome e telefone com mascara brasileira.

@@ -4,6 +4,8 @@ const STORAGE_KEY = "posVendaHistory";
 const DEFAULT_MESSAGE_KEY = "posVendaDefaultMessage";
 const HISTORY_LIMIT = 10;
 const AUTH_TOKEN_KEY = "posVendaToken";
+const LOCAL_AUTH_KEY = "posVendaAuthMode";
+const LOCAL_USER_KEY = "posVendaLocalUser";
 const HISTORY_PAGE_SIZE = 10;
 
 const form = document.querySelector("#messageForm");
@@ -27,8 +29,17 @@ let currentHistoryPage = 1;
 
 async function ensureAuthenticated() {
   const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  const authMode = localStorage.getItem(LOCAL_AUTH_KEY);
   if (!token) {
     window.location.href = "/login.html";
+    return;
+  }
+
+  if (authMode === "local") {
+    const localUser = localStorage.getItem(LOCAL_USER_KEY);
+    if (loggedUser && localUser) {
+      loggedUser.textContent = localUser;
+    }
     return;
   }
 

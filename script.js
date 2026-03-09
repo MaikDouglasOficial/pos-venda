@@ -31,7 +31,6 @@ async function ensureAuthenticated() {
   const token = localStorage.getItem(AUTH_TOKEN_KEY);
   const authMode = localStorage.getItem(LOCAL_AUTH_KEY);
   if (!token) {
-    window.location.href = "/login.html";
     return;
   }
 
@@ -55,11 +54,11 @@ async function ensureAuthenticated() {
 
     if (!response.ok) {
       localStorage.removeItem(AUTH_TOKEN_KEY);
-      window.location.href = "/login.html";
+      return;
     }
   } catch (error) {
     localStorage.removeItem(AUTH_TOKEN_KEY);
-    window.location.href = "/login.html";
+    return;
   }
 }
 

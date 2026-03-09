@@ -19,6 +19,17 @@ Sistema web simples para criar e enviar mensagens de pos-venda via WhatsApp, com
    http://localhost:3000/login.html
    ```
 
+## Deploy na Vercel
+
+1. Importe o repositorio no painel da Vercel.
+2. Configure as variaveis de ambiente no projeto:
+   - `ADMIN_USER`
+   - `ADMIN_PASSWORD`
+   - `JWT_SECRET`
+3. Realize o deploy.
+
+As rotas de login e verificacao sao servidas pelas funcoes em `/api`.
+
 ## Funcionalidades
 
 - Campo nome e telefone com mascara brasileira.

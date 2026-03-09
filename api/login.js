@@ -1,4 +1,3 @@
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 async function getJsonBody(req) {
@@ -44,9 +43,8 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const passwordHash = bcrypt.hashSync(ADMIN_PASSWORD, 10);
     const isUserValid = username === ADMIN_USER;
-    const isPasswordValid = bcrypt.compareSync(password, passwordHash);
+    const isPasswordValid = password === ADMIN_PASSWORD;
 
     if (!isUserValid || !isPasswordValid) {
       res.statusCode = 401;

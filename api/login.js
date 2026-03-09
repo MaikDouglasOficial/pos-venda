@@ -43,8 +43,13 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const isUserValid = username === ADMIN_USER;
-    const isPasswordValid = password === ADMIN_PASSWORD;
+    const safeUser = String(username).trim();
+    const safePass = String(password).trim();
+    const envUser = String(ADMIN_USER).trim();
+    const envPass = String(ADMIN_PASSWORD).trim();
+
+    const isUserValid = safeUser === envUser;
+    const isPasswordValid = safePass === envPass;
 
     if (!isUserValid || !isPasswordValid) {
       res.statusCode = 401;

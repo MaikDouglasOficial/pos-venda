@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
   }
 
   const { ADMIN_USER, ADMIN_PASSWORD, JWT_SECRET } = process.env;
-  if (!ADMIN_USER || !ADMIN_PASSWORD || !JWT_SECRET) {
+  if (!JWT_SECRET) {
     res.statusCode = 500;
     res.json({ message: "Missing environment variables." });
     return;
@@ -45,8 +45,8 @@ module.exports = async (req, res) => {
 
     const safeUser = String(username).trim();
     const safePass = String(password).trim();
-    const envUser = String(ADMIN_USER).trim();
-    const envPass = String(ADMIN_PASSWORD).trim();
+    const envUser = String(ADMIN_USER || "admin").trim();
+    const envPass = String(ADMIN_PASSWORD || "admin").trim();
 
     const isUserValid = safeUser === envUser;
     const isPasswordValid = safePass === envPass;

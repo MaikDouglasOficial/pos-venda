@@ -32,8 +32,14 @@
           <form id="messageForm" class="form" novalidate>
             <div class="field">
               <label for="name">Nome do cliente</label>
-              <input id="name" name="name" type="text" placeholder="Digite o nome do cliente" />
-              <small class="error" id="nameError"></small>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="Digite o nome do cliente"
+                aria-describedby="nameError"
+              />
+              <small class="error" id="nameError" role="alert" aria-live="assertive"></small>
             </div>
 
             <div class="field">
@@ -45,8 +51,9 @@
                 placeholder="(63) 99999-9999"
                 inputmode="numeric"
                 maxlength="15"
+                aria-describedby="phoneError"
               />
-              <small class="error" id="phoneError"></small>
+              <small class="error" id="phoneError" role="alert" aria-live="assertive"></small>
             </div>
 
             <div class="field">
@@ -92,6 +99,8 @@
         </section>
       </main>
     </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script src="script.js"></script>
   </body>

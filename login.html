@@ -19,33 +19,37 @@
       <div class="login-card">
         <p class="eyebrow">Acesso restrito</p>
         <h1>Pós Venda Facil</h1>
-        <p class="subtitle">Insira seu usuário e senha para fazer login</p>
+        <p class="subtitle">Insira seu usuário e senha para acessar o painel</p>
 
         <form id="loginForm" class="form" novalidate>
           <div class="field">
             <label for="username">Usuário</label>
-            <input id="username" name="username" type="text" placeholder="Digite seu usuário" />
-            <small class="error" id="userError"></small>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              placeholder="Digite seu usuário"
+              aria-describedby="userError"
+            />
+            <small class="error" id="userError" role="alert" aria-live="assertive"></small>
           </div>
 
           <div class="field">
             <label for="password">Senha</label>
-            <input id="password" name="password" type="password" placeholder="Digite sua senha" />
-            <small class="error" id="passError"></small>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Digite sua senha"
+              aria-describedby="passError"
+            />
+            <small class="error" id="passError" role="alert" aria-live="assertive"></small>
           </div>
 
-          <div class="actions">
+          <div class="actions login-actions">
             <button type="submit" class="btn primary">Entrar</button>
           </div>
-          <div class="actions">
-            <button type="button" class="btn ghost" id="createUserBtn">
-              Criar primeiro usuário
-            </button>
-          </div>
-          <small class="hint" id="createHint">
-            Use este botão apenas no primeiro acesso.
-          </small>
-          <small class="error" id="loginError"></small>
+          <small class="error" id="loginError" role="alert" aria-live="assertive"></small>
         </form>
       </div>
     </div>

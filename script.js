@@ -23,9 +23,11 @@ const toggleMessage = document.querySelector("#toggleMessage");
 const messageField = messageInput.closest(".field");
 const loggedUser = document.querySelector("#loggedUser");
 const saveMessageBtn = document.querySelector("#saveMessageBtn");
+const toast = document.querySelector("#toast");
 
 let userEditedMessage = false;
 let currentHistoryPage = 1;
+let toastTimeout;
 
 async function ensureAuthenticated() {
   const token = localStorage.getItem(AUTH_TOKEN_KEY);
@@ -79,17 +81,56 @@ function buildMessage(name) {
   const safeName = name.trim();
   const greeting = safeName ? `Olá, ${safeName}!` : "Olá";
   const template = localStorage.getItem(DEFAULT_MESSAGE_KEY) || DEFAULT_MESSAGE;
-  if (template.includes("[NOME_DO_CLIENTE]")) {
-    const filled = template
-      .replace("[NOME_DO_CLIENTE]", safeName || "")
-      .replace("Olá, !", "Olá");
-    return dedupeGreeting(filled);
+  const filledTemplate = applyNamePlaceholders(template, safeName);
+  const trimmedTemplate = filledTemplate.trim();
+  if (templateHasGreeting(trimmedTemplate)) {
+    const withName = applyGreetingName(trimmedTemplate, safeName);
+    return dedupeGreeting(withName);
   }
-  const trimmedTemplate = template.trim();
-  if (/^olá\b/i.test(trimmedTemplate)) {
-    return dedupeGreeting(template);
+  return dedupeGreeting(`${greeting}\n\n${filledTemplate}`);
+}
+
+function applyNamePlaceholders(template, safeName) {
+  if (!safeName) return template;
+  return template
+    .replaceAll("[NOME_DO_CLIENTE]", safeName)
+    .replaceAll("[NOME]", safeName)
+    .replaceAll("{{NOME}}", safeName)
+    .replace("Olá, !", "Olá");
+}
+
+function applyGreetingName(template, safeName) {
+  if (!safeName) return template;
+  const lines = template.split(/\r?\n/);
+  const firstIndex = lines.findIndex((line) => line.trim());
+  if (firstIndex === -1) return template;
+
+  const firstLine = lines[firstIndex];
+  if (!startsWithGreeting(firstLine)) return template;
+
+  const normalizedName = safeName.toLowerCase();
+  if (firstLine.toLowerCase().includes(normalizedName)) {
+    return template;
   }
-  return dedupeGreeting(`${greeting}\n\n${template}`);
+
+  const match = firstLine.match(/^[^a-z0-9]*ol[áa][,!:;\s-]*/i);
+  if (!match) return template;
+  const rest = firstLine.slice(match[0].length).trimStart();
+  lines[firstIndex] = `Olá, ${safeName}!${rest ? " " + rest : ""}`;
+  return lines.join("\n");
+}
+
+function templateHasGreeting(text) {
+  return startsWithGreeting(text);
+}
+
+function startsWithGreeting(text) {
+  const normalized = text
+    .trimStart()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+  return normalized.startsWith("ola");
 }
 
 function dedupeGreeting(message) {
@@ -111,8 +152,8 @@ function dedupeGreeting(message) {
   if (
     firstIndex !== -1 &&
     secondIndex !== -1 &&
-    /^olá\b/i.test(lines[firstIndex].trim()) &&
-    /^olá\b/i.test(lines[secondIndex].trim())
+    startsWithGreeting(lines[firstIndex]) &&
+    startsWithGreeting(lines[secondIndex])
   ) {
     lines.splice(secondIndex, 1);
   }
@@ -142,24 +183,70 @@ function getPhoneDigits() {
 }
 
 function validateName() {
-  nameError.textContent = "";
+  const value = nameInput.value.trim();
+  if (!value) {
+    setInputError(nameInput, nameError, "Informe o nome do cliente.");
+    return false;
+  }
+  if (value.length < 2) {
+    setInputError(nameInput, nameError, "Nome muito curto.");
+    return false;
+  }
+  clearInputError(nameInput, nameError);
   return true;
 }
 
 function validatePhone() {
   const digits = getPhoneDigits();
   if (digits.length !== 11) {
-    phoneError.textContent = "Informe um telefone válido com DDD.";
+    setInputError(phoneInput, phoneError, "Informe um telefone válido com DDD.");
     return false;
   }
-  phoneError.textContent = "";
+  clearInputError(phoneInput, phoneError);
   return true;
 }
 
 function validateForm() {
+  const isNameValid = validateName();
   const isPhoneValid = validatePhone();
-  validateName();
-  return isPhoneValid;
+  if (!isNameValid) {
+    nameInput.focus();
+    return false;
+  }
+  if (!isPhoneValid) {
+    phoneInput.focus();
+    return false;
+  }
+  return true;
+}
+
+function setInputError(input, errorElement, message) {
+  const field = input.closest(".field");
+  if (field) {
+    field.classList.add("has-error");
+  }
+  input.setAttribute("aria-invalid", "true");
+  errorElement.textContent = message;
+}
+
+function clearInputError(input, errorElement) {
+  const field = input.closest(".field");
+  if (field) {
+    field.classList.remove("has-error");
+  }
+  input.removeAttribute("aria-invalid");
+  errorElement.textContent = "";
+}
+
+function showToast(message, variant = "success") {
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.remove("success", "error", "show");
+  toast.classList.add(variant, "show");
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2400);
 }
 
 function saveHistory(entry) {
@@ -248,14 +335,29 @@ function renderPagination(totalPages) {
   }
 }
 
-function handleCopy() {
-  if (!validateForm()) return;
-  navigator.clipboard.writeText(messageInput.value.trim());
+async function handleCopy() {
+  if (!validateForm()) {
+    showToast("Corrija os campos destacados.", "error");
+    return;
+  }
+  if (!navigator.clipboard?.writeText) {
+    showToast("Seu navegador não permite copiar automaticamente.", "error");
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(messageInput.value.trim());
+    showToast("Mensagem copiada com sucesso!", "success");
+  } catch (error) {
+    showToast("Não foi possível copiar a mensagem.", "error");
+  }
 }
 
 function handleSubmit(event) {
   event.preventDefault();
-  if (!validateForm()) return;
+  if (!validateForm()) {
+    showToast("Corrija os campos destacados.", "error");
+    return;
+  }
 
   const name = nameInput.value.trim();
   const phoneDigits = getPhoneDigits();
@@ -272,6 +374,21 @@ function handleSubmit(event) {
   });
 
   window.open(url, "_blank", "noopener,noreferrer");
+  showToast("Mensagem pronta no WhatsApp!", "success");
+  resetFormAfterSubmit();
+}
+
+function resetFormAfterSubmit() {
+  form.reset();
+  nameInput.value = "";
+  phoneInput.value = "";
+  clearInputError(nameInput, nameError);
+  clearInputError(phoneInput, phoneError);
+  userEditedMessage = false;
+  toggleMessage.checked = false;
+  messageField.classList.add("hidden");
+  messageInput.disabled = true;
+  setMessageIfNotEdited("");
 }
 
 nameInput.addEventListener("input", () => {

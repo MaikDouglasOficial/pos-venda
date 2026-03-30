@@ -36,6 +36,24 @@
   margin-bottom: 18px;
 }
 
+.login-actions {
+  justify-content: flex-end;
+}
+
+.login-actions .btn {
+  width: auto;
+}
+
 #loginError {
   margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+  .login-actions {
+    justify-content: stretch;
+  }
+
+  .login-actions .btn {
+    width: 100%;
+  }
 }

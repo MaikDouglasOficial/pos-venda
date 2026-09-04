@@ -3,12 +3,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       SERVICE_FQDN_APP_3000: ${SERVICE_FQDN_APP_3000}
       NODE_ENV: production
       PORT: "3000"
       DATA_DIR: /app/data
       JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-posvenda}:${POSTGRES_PASSWORD:-posvenda}@postgres:5432/${POSTGRES_DB:-posvenda}
+      DATABASE_SSL: "false"
     expose:
       - "3000"
     volumes:
@@ -21,5 +26,21 @@ services:
       retries: 5
     restart: unless-stopped
 
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-posvenda}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-posvenda}
+      POSTGRES_DB: ${POSTGRES_DB:-posvenda}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-posvenda} -d ${POSTGRES_DB:-posvenda}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
 volumes:
   posvenda-data:
+  postgres-data:

@@ -29,9 +29,17 @@ Sistema web simples para criar e enviar mensagens de pos-venda via WhatsApp, com
    - `NODE_ENV` = `production`
    - `PORT` = `3000`
    - `DATA_DIR` = `/app/data`
-5. Persistent Storage: destino `/app/data`.
+   - `DATABASE_URL` = URL interna do PostgreSQL do Coolify
+   - `DATABASE_SSL` = `false` (banco interno do Coolify)
+5. Persistent Storage do app: destino `/app/data`.
 6. Healthcheck: caminho `/api/health`, porta `3000`.
 7. Deixe pre/post-deployment vazios e faca o deploy.
+
+Para usar banco no Coolify (Application atual):
+1. Em Databases, crie um PostgreSQL.
+2. Copie a **Internal URL**.
+3. Cole em `DATABASE_URL` no app.
+4. Redeploy o `pos-venda`.
 
 ## Funcionalidades
 

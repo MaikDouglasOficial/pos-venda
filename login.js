@@ -3,22 +3,18 @@ const LOGIN_TOKEN_KEY = "posVendaToken";
 const form = document.querySelector("#loginForm");
 const usernameInput = document.querySelector("#username");
 const passwordInput = document.querySelector("#password");
-const confirmInput = document.querySelector("#confirmPassword");
-const confirmField = document.querySelector("#confirmField");
 const userError = document.querySelector("#userError");
 const passError = document.querySelector("#passError");
-const confirmError = document.querySelector("#confirmError");
 const loginError = document.querySelector("#loginError");
 const submitBtn = document.querySelector("#submitBtn");
 const authSubtitle = document.querySelector("#authSubtitle");
 const authAltBtn = document.querySelector("#authAltBtn");
 
-let mode = "login";
+let mode = "register";
 
 function setMode(nextMode) {
   mode = nextMode;
   const isRegister = mode === "register";
-  confirmField.classList.toggle("hidden", !isRegister);
   submitBtn.textContent = isRegister ? "Criar acesso" : "Entrar";
   authSubtitle.textContent = isRegister
     ? "Crie seu usuário e senha para guardar os clientes."
@@ -28,7 +24,6 @@ function setMode(nextMode) {
     : "Ainda não tem acesso? Criar agora";
   passwordInput.autocomplete = isRegister ? "new-password" : "current-password";
   loginError.textContent = "";
-  confirmError.textContent = "";
 }
 
 function validateUsername() {
@@ -59,30 +54,18 @@ function validatePassword() {
   return true;
 }
 
-function validateConfirm() {
-  if (mode !== "register") {
-    confirmError.textContent = "";
-    return true;
-  }
-  if (confirmInput.value.trim() !== passwordInput.value.trim()) {
-    confirmError.textContent = "As senhas não coincidem.";
-    return false;
-  }
-  confirmError.textContent = "";
-  return true;
-}
-
 async function handleSubmit(event) {
   event.preventDefault();
   loginError.textContent = "";
 
   const okUser = validateUsername();
   const okPass = validatePassword();
-  const okConfirm = validateConfirm();
-  if (!okUser || !okPass || !okConfirm) return;
+  if (!okUser || !okPass) return;
 
   const endpoint = mode === "register" ? "/api/register" : "/api/login";
+  const idleLabel = mode === "register" ? "Criar acesso" : "Entrar";
   submitBtn.disabled = true;
+  submitBtn.textContent = mode === "register" ? "Criando..." : "Entrando...";
 
   try {
     const response = await fetch(endpoint, {
@@ -94,9 +77,22 @@ async function handleSubmit(event) {
       }),
     });
 
-    const data = await response.json().catch(() => ({}));
+    const raw = await response.text();
+    let data = {};
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch (error) {
+      loginError.textContent = "O servidor não respondeu certo. Tente de novo.";
+      return;
+    }
+
     if (!response.ok) {
       loginError.textContent = data.message || "Não foi possível continuar.";
+      return;
+    }
+
+    if (!data.token) {
+      loginError.textContent = "Não foi possível criar o acesso.";
       return;
     }
 
@@ -106,9 +102,10 @@ async function handleSubmit(event) {
     loginError.textContent = "Erro ao conectar com o servidor.";
   } finally {
     submitBtn.disabled = false;
+    submitBtn.textContent = idleLabel;
   }
 }
 
 authAltBtn.addEventListener("click", () => setMode(mode === "register" ? "login" : "register"));
 form.addEventListener("submit", handleSubmit);
-setMode("login");
+setMode("register");

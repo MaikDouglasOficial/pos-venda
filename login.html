@@ -20,7 +20,7 @@
     <div class="login-wrapper">
       <div class="login-card">
         <h1>Pós Venda Fácil</h1>
-        <p class="subtitle" id="authSubtitle">Entre para ver seus clientes salvos.</p>
+        <p class="subtitle" id="authSubtitle">Crie seu usuário e senha para guardar os clientes.</p>
 
         <form id="loginForm" class="form" novalidate>
           <div class="field">
@@ -63,30 +63,10 @@
             <small class="error" id="passError" role="alert" aria-live="assertive"></small>
           </div>
 
-          <div class="field hidden" id="confirmField">
-            <label for="confirmPassword">Confirmar senha</label>
-            <div class="input-shell">
-              <span class="input-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.8" />
-                  <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                </svg>
-              </span>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autocomplete="new-password"
-                aria-describedby="confirmError"
-              />
-            </div>
-            <small class="error" id="confirmError" role="alert" aria-live="assertive"></small>
-          </div>
-
           <div class="actions login-actions">
-            <button type="submit" class="btn primary" id="submitBtn">Entrar</button>
+            <button type="submit" class="btn primary" id="submitBtn">Criar acesso</button>
           </div>
-          <button type="button" class="auth-alt" id="authAltBtn">Ainda não tem acesso? Criar agora</button>
+          <button type="button" class="auth-alt" id="authAltBtn">Já tem acesso? Entrar</button>
           <small class="error" id="loginError" role="alert" aria-live="assertive"></small>
         </form>
       </div>

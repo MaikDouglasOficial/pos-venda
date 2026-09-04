@@ -1,15 +1,15 @@
 :root {
   --bg: #08140e;
-  --surface: rgba(255, 255, 255, 0.78);
-  --text: #102117;
-  --muted: #5b6a61;
+  --surface: #ffffff;
+  --text: #12261a;
+  --muted: #66756c;
   --accent: #1aa75b;
   --accent-dark: #12824a;
   --accent-red: #d9272e;
   --accent-red-dark: #b61f25;
   --line: rgba(16, 33, 23, 0.1);
-  --shadow: 0 24px 60px rgba(4, 14, 9, 0.22);
-  --radius: 22px;
+  --shadow: 0 16px 40px rgba(4, 14, 9, 0.2);
+  --radius: 18px;
   --header-h: 52px;
   --nav-h: 64px;
   --safe-top: env(safe-area-inset-top, 0px);
@@ -32,9 +32,8 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   background:
-    radial-gradient(1200px 500px at 10% -10%, rgba(26, 167, 91, 0.35), transparent 55%),
-    radial-gradient(900px 420px at 110% 8%, rgba(217, 39, 46, 0.28), transparent 50%),
-    linear-gradient(180deg, #10281b 0%, #08140e 42%, #0c1a12 100%);
+    radial-gradient(900px 420px at 8% -8%, rgba(26, 167, 91, 0.22), transparent 52%),
+    linear-gradient(180deg, #0d1f15 0%, #08140e 48%, #07110c 100%);
   overflow-x: hidden;
 }
 
@@ -58,27 +57,23 @@ label {
 }
 
 .orb-a {
-  width: 280px;
-  height: 280px;
+  width: 220px;
+  height: 220px;
   left: -90px;
   top: 80px;
-  background: rgba(26, 167, 91, 0.45);
+  background: rgba(26, 167, 91, 0.22);
 }
 
 .orb-b {
-  width: 240px;
-  height: 240px;
+  width: 180px;
+  height: 180px;
   right: -80px;
   top: 180px;
-  background: rgba(217, 39, 46, 0.32);
+  background: rgba(26, 167, 91, 0.12);
 }
 
 .orb-c {
-  width: 220px;
-  height: 220px;
-  left: 30%;
-  bottom: 40px;
-  background: rgba(26, 167, 91, 0.18);
+  display: none;
 }
 
 .app-header,
@@ -193,11 +188,11 @@ h1 {
 .panel,
 .glass {
   background: var(--surface);
-  backdrop-filter: blur(24px) saturate(1.2);
+  backdrop-filter: blur(18px);
   border-radius: var(--radius);
-  padding: 14px;
+  padding: 16px;
   box-shadow: var(--shadow);
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   position: relative;
   overflow: hidden;
   height: auto;
@@ -205,20 +200,28 @@ h1 {
   align-self: start;
 }
 
+.panel-heading {
+  margin-bottom: 14px;
+}
+
 .compose {
   display: block;
 }
 
 .panel h2 {
-  font-size: 1.2rem;
-  letter-spacing: -0.03em;
+  font-size: 1.28rem;
+  letter-spacing: -0.04em;
   margin: 0;
 }
 
 .panel-kicker {
-  color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.4;
+  color: var(--accent-dark);
+  font-size: 0.68rem;
+  line-height: 1.3;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
 }
 
 .form {
@@ -252,12 +255,12 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 44px;
+  min-height: 48px;
   padding: 8px 12px;
   border: 1px solid rgba(16, 33, 23, 0.08);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.55);
-  font-size: 0.88rem;
+  border-radius: 14px;
+  background: #f4f7f5;
+  font-size: 0.86rem;
   color: var(--text);
   font-weight: 700;
 }
@@ -312,7 +315,8 @@ h1 {
 
 label {
   font-weight: 700;
-  font-size: 0.86rem;
+  font-size: 0.78rem;
+  color: #3d5246;
 }
 
 .input-shell,
@@ -321,9 +325,9 @@ label {
   align-items: center;
   gap: 10px;
   border: 1px solid rgba(16, 33, 23, 0.08);
-  border-radius: 18px;
+  border-radius: 14px;
   padding: 0 14px;
-  background: rgba(255, 255, 255, 0.72);
+  background: #f4f7f5;
   transition: border 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
@@ -380,12 +384,13 @@ textarea:focus {
 
 textarea {
   border: 1px solid rgba(16, 33, 23, 0.08);
-  background: rgba(255, 255, 255, 0.72);
+  background: #f4f7f5;
   padding: 12px;
   resize: none;
   min-height: 88px;
   max-height: 88px;
   line-height: 1.4;
+  border-radius: 14px;
 }
 
 textarea:focus {
@@ -456,14 +461,14 @@ textarea:focus {
 }
 
 .btn.ghost {
-  background: rgba(255, 255, 255, 0.55);
+  background: #f3f6f4;
   color: var(--text);
-  border: 1px solid rgba(217, 39, 46, 0.18);
+  border: 1px solid rgba(16, 33, 23, 0.08);
 }
 
 .btn.ghost:hover,
 .btn.ghost:active {
-  background: rgba(217, 39, 46, 0.08);
+  background: #e8eee9;
 }
 
 .app-header .btn.danger {
@@ -508,14 +513,14 @@ textarea:focus {
 
 .insight-chip {
   appearance: none;
-  border: 1px solid rgba(16, 33, 23, 0.1);
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--text);
+  border: 1px solid rgba(16, 33, 23, 0.08);
+  background: #f4f7f5;
+  color: #3d5246;
   border-radius: 999px;
   padding: 8px 12px;
   min-height: 36px;
-  font-size: 0.78rem;
-  font-weight: 800;
+  font-size: 0.75rem;
+  font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
 }
@@ -526,13 +531,24 @@ textarea:focus {
   color: var(--accent-dark);
 }
 
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .chip-credit {
-  background: rgba(217, 39, 46, 0.1);
+  background: #fff3e8;
+  color: #9a4d12;
+}
+
+.chip-warn {
+  background: #fff1f1;
   color: var(--accent-red-dark);
 }
 
 .chip-muted {
-  background: rgba(16, 33, 23, 0.06);
+  background: #eef1ef;
   color: var(--muted);
 }
 
@@ -606,7 +622,12 @@ textarea:focus {
 
 .history-item-actions {
   display: flex;
-  margin-top: 8px;
+  margin-top: 4px;
+}
+
+.history-item-actions .btn.primary.compact {
+  width: auto;
+  min-width: 108px;
 }
 
 .history-product,
@@ -631,8 +652,8 @@ textarea:focus {
 .history-list {
   list-style: none;
   display: grid;
-  gap: 8px;
-  max-height: 42vh;
+  gap: 10px;
+  max-height: 48vh;
   overflow: auto;
 }
 
@@ -663,9 +684,9 @@ textarea:focus {
 
 .history-item {
   border: 1px solid rgba(16, 33, 23, 0.08);
-  border-radius: 22px;
+  border-radius: 16px;
   padding: 14px;
-  background: rgba(255, 255, 255, 0.7);
+  background: #f8faf8;
   display: grid;
   gap: 6px;
 }
@@ -697,17 +718,16 @@ textarea:focus {
 }
 
 .client-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 18px;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
   display: grid;
   place-items: center;
-  background: linear-gradient(180deg, #3dcc73 0%, var(--accent) 100%);
+  background: #12824a;
   color: #fff;
   font-family: "Outfit", sans-serif;
   font-weight: 700;
-  font-size: 1.1rem;
-  box-shadow: 0 8px 16px rgba(26, 167, 91, 0.25);
+  font-size: 1.05rem;
 }
 
 .client-body {
@@ -724,6 +744,22 @@ textarea:focus {
 .history-item span {
   color: var(--muted);
   font-size: 0.85rem;
+}
+
+.history-item .chip {
+  color: var(--accent-dark);
+}
+
+.history-item .chip-credit {
+  color: #9a4d12;
+}
+
+.history-item .chip-warn {
+  color: var(--accent-red-dark);
+}
+
+.history-item .chip-muted {
+  color: var(--muted);
 }
 
 .history-item p {

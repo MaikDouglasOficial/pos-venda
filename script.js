@@ -561,6 +561,9 @@ function createClientItem(item) {
   phone.className = "history-meta";
   phone.textContent = item.phone;
 
+  const tags = document.createElement("div");
+  tags.className = "chip-row";
+
   const product = document.createElement("span");
   product.className = "chip";
   product.textContent = item.product || "Produto não informado";
@@ -571,13 +574,25 @@ function createClientItem(item) {
     ? `Crediário ${item.installments}x`
     : "À vista";
 
-  const details = document.createElement("span");
-  const extra = [];
-  if (isFinishingSoon(item)) extra.push("terminando de pagar");
-  if (isOldClient(item)) extra.push("cliente de 1 ano+");
-  details.textContent = `${item.count} ${item.count === 1 ? "atendimento" : "atendimentos"} · ${item.date}${extra.length ? ` · ${extra.join(" · ")}` : ""}`;
+  tags.append(product, sale);
+  if (isFinishingSoon(item)) {
+    const finishing = document.createElement("span");
+    finishing.className = "chip chip-warn";
+    finishing.textContent = "Terminando";
+    tags.appendChild(finishing);
+  }
+  if (isOldClient(item)) {
+    const old = document.createElement("span");
+    old.className = "chip";
+    old.textContent = "1 ano+";
+    tags.appendChild(old);
+  }
 
-  body.append(title, phone, product, sale, details);
+  const details = document.createElement("span");
+  details.className = "history-meta";
+  details.textContent = `${item.count} ${item.count === 1 ? "atendimento" : "atendimentos"} · ${item.date}`;
+
+  body.append(title, phone, tags, details);
 
   const actions = document.createElement("div");
   actions.className = "history-item-actions";

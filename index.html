@@ -110,6 +110,37 @@
           </div>
 
           <div class="field toggle-edit">
+            <label class="toggle-label" for="creditToggle">
+              <span>Venda no crediário</span>
+              <input id="creditToggle" type="checkbox" />
+              <span class="switch" aria-hidden="true"></span>
+            </label>
+          </div>
+
+          <div class="field hidden" id="installmentsField">
+            <label for="installments">Quantas parcelas</label>
+            <div class="input-shell">
+              <span class="input-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="4" y="5" width="16" height="15" rx="2.2" stroke="currentColor" stroke-width="1.8" />
+                  <path d="M8 3.5v3M16 3.5v3M4 10h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+              </span>
+              <input
+                id="installments"
+                name="installments"
+                type="number"
+                inputmode="numeric"
+                min="2"
+                max="48"
+                enterkeyhint="done"
+                aria-describedby="installmentsError"
+              />
+            </div>
+            <small class="error" id="installmentsError" role="alert" aria-live="assertive"></small>
+          </div>
+
+          <div class="field toggle-edit">
             <label class="toggle-label" for="toggleMessage">
               <span>Editar mensagem</span>
               <input id="toggleMessage" type="checkbox" />
@@ -179,6 +210,12 @@
             class="history-filter"
             aria-label="Filtrar por data"
           />
+        </div>
+        <div class="insight-row" id="insightFilters">
+          <button type="button" class="insight-chip" data-insight="yesterday">Ontem</button>
+          <button type="button" class="insight-chip" data-insight="credit">Crediário</button>
+          <button type="button" class="insight-chip" data-insight="finishing">Terminando de pagar</button>
+          <button type="button" class="insight-chip" data-insight="old">Há mais de 1 ano</button>
         </div>
         <div class="history-tabs" role="tablist">
           <button type="button" class="tab-btn active" id="tabClients" data-view="clients">

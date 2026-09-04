@@ -4,6 +4,10 @@ const DEFAULT_REOFFER_MESSAGE =
   "Lembrei de você! 😊\nVocê comprou [PRODUTO] com a gente e queria te avisar que temos novidades e condições especiais.\n\nSe quiser, posso te mostrar as opções.\n\nMaik Douglas\nLOJAS NOSSO LAR PARAÍSO\n\nSalve meu contato 📲 para receber nossas promoções!";
 const DEFAULT_REOFFER_NO_PRODUCT =
   "Lembrei de você! 😊\nPassando para te avisar que temos novidades e condições especiais.\n\nSe quiser, posso te mostrar as opções.\n\nMaik Douglas\nLOJAS NOSSO LAR PARAÍSO\n\nSalve meu contato 📲 para receber nossas promoções!";
+const DEFAULT_FINISH_MESSAGE =
+  "Sua compra do [PRODUTO] está quase quitando! 🙌\nQuando terminar, posso te mostrar novidades com condição especial.\n\nMaik Douglas\nLOJAS NOSSO LAR PARAÍSO\n\nSalve meu contato 📲 para receber nossas promoções!";
+const DEFAULT_OLD_CLIENT_MESSAGE =
+  "Faz um tempo que te atendi e lembrei de você! 😊\nTemos novidades e posso separar uma condição especial.\n\nMaik Douglas\nLOJAS NOSSO LAR PARAÍSO\n\nSalve meu contato 📲 para receber nossas promoções!";
 const STORAGE_KEY = "posVendaHistory";
 const DEFAULT_MESSAGE_KEY = "posVendaDefaultMessage";
 const AUTH_TOKEN_KEY = "posVendaToken";
@@ -16,6 +20,11 @@ const nameInput = document.querySelector("#name");
 const phoneInput = document.querySelector("#phone");
 const productInput = document.querySelector("#product");
 const productSuggestions = document.querySelector("#productSuggestions");
+const creditToggle = document.querySelector("#creditToggle");
+const installmentsField = document.querySelector("#installmentsField");
+const installmentsInput = document.querySelector("#installments");
+const installmentsError = document.querySelector("#installmentsError");
+const insightFilters = document.querySelector("#insightFilters");
 const messageInput = document.querySelector("#message");
 const nameError = document.querySelector("#nameError");
 const phoneError = document.querySelector("#phoneError");
@@ -42,6 +51,7 @@ let userEditedMessage = false;
 let currentHistoryPage = 1;
 let currentView = "clients";
 let messageMode = "thanks";
+let currentInsight = "";
 let toastTimeout;
 
 async function ensureAuthenticated() {
@@ -100,6 +110,12 @@ function getUsernameFromToken(token) {
 }
 
 function getActiveTemplate() {
+  if (messageMode === "finish") {
+    return DEFAULT_FINISH_MESSAGE;
+  }
+  if (messageMode === "old") {
+    return DEFAULT_OLD_CLIENT_MESSAGE;
+  }
   if (messageMode === "reoffer") {
     const product = productInput.value.trim();
     return product ? DEFAULT_REOFFER_MESSAGE : DEFAULT_REOFFER_NO_PRODUCT;
@@ -244,15 +260,34 @@ function validatePhone() {
   return true;
 }
 
+function validateInstallments() {
+  if (!creditToggle?.checked) {
+    if (installmentsError) installmentsError.textContent = "";
+    return true;
+  }
+  const value = Number(installmentsInput.value);
+  if (!value || value < 2) {
+    setInputError(installmentsInput, installmentsError, "Informe as parcelas (mínimo 2).");
+    return false;
+  }
+  clearInputError(installmentsInput, installmentsError);
+  return true;
+}
+
 function validateForm() {
   const isNameValid = validateName();
   const isPhoneValid = validatePhone();
+  const isInstallmentsValid = validateInstallments();
   if (!isNameValid) {
     nameInput.focus();
     return false;
   }
   if (!isPhoneValid) {
     phoneInput.focus();
+    return false;
+  }
+  if (!isInstallmentsValid) {
+    installmentsInput.focus();
     return false;
   }
   return true;
@@ -346,6 +381,7 @@ function loadHistory() {
 
 function normalizeHistoryItem(item) {
   const phone = item.phone || "";
+  const installments = Number(item.installments) || 0;
   return {
     id: item.id || createHistoryId(),
     name: item.name || "",
@@ -355,12 +391,58 @@ function normalizeHistoryItem(item) {
     message: item.message || "",
     date: item.date || "",
     dateISO: item.dateISO || "",
+    credit: Boolean(item.credit) || installments > 1,
+    installments,
   };
+}
+
+function dayKey(iso) {
+  return String(iso || "").slice(0, 10);
+}
+
+function yesterdayKey() {
+  const date = new Date();
+  date.setDate(date.getDate() - 1);
+  return date.toISOString().slice(0, 10);
+}
+
+function addMonths(iso, months) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  date.setMonth(date.getMonth() + months);
+  return date.toISOString();
+}
+
+function finishDateISO(item) {
+  if (!item.credit || item.installments < 2 || !item.dateISO) return "";
+  return addMonths(item.dateISO, item.installments - 1);
+}
+
+function isFinishingSoon(item) {
+  const end = finishDateISO(item);
+  if (!end) return false;
+  const endMs = new Date(end).getTime();
+  const now = Date.now();
+  return endMs >= now - 7 * 86400000 && endMs <= now + 45 * 86400000;
+}
+
+function isOldClient(item) {
+  const first = item.firstDateISO || item.dateISO;
+  if (!first) return false;
+  return Date.now() - new Date(first).getTime() >= 365 * 86400000;
 }
 
 function matchesSearch(item, query) {
   if (!query) return true;
-  const haystack = [item.name, item.phone, item.phoneDigits, item.product, item.message]
+  const haystack = [
+    item.name,
+    item.phone,
+    item.phoneDigits,
+    item.product,
+    item.message,
+    item.credit ? "crediario crediário" : "a vista",
+    item.installments ? `${item.installments}x` : "",
+  ]
     .join(" ")
     .toLowerCase();
   return haystack.includes(query);
@@ -372,7 +454,11 @@ function getFilteredHistory() {
   const query = historySearchInput.value.trim().toLowerCase();
   return history.filter((item) => {
     const matchesDate = selectedDate ? item.dateISO && item.dateISO.startsWith(selectedDate) : true;
-    return matchesDate && matchesSearch(item, query);
+    if (!matchesDate || !matchesSearch(item, query)) return false;
+    if (currentInsight === "yesterday") return dayKey(item.dateISO) === yesterdayKey();
+    if (currentInsight === "credit") return item.credit;
+    if (currentInsight === "finishing") return isFinishingSoon(item);
+    return true;
   });
 }
 
@@ -383,10 +469,27 @@ function getClients(history) {
     if (!digits) return;
     const existing = clients.get(digits);
     if (!existing) {
-      clients.set(digits, { ...item, phoneDigits: digits, count: 1 });
+      clients.set(digits, {
+        ...item,
+        phoneDigits: digits,
+        count: 1,
+        firstDateISO: item.dateISO,
+        lastDateISO: item.dateISO,
+      });
       return;
     }
     existing.count += 1;
+    if (item.dateISO && item.dateISO < (existing.firstDateISO || item.dateISO)) {
+      existing.firstDateISO = item.dateISO;
+    }
+    if (item.dateISO && item.dateISO >= (existing.lastDateISO || "")) {
+      existing.lastDateISO = item.dateISO;
+      existing.date = item.date;
+      existing.product = item.product || existing.product;
+      existing.credit = item.credit;
+      existing.installments = item.installments;
+      existing.message = item.message;
+    }
     if (!existing.product && item.product) {
       existing.product = item.product;
     }
@@ -396,7 +499,11 @@ function getClients(history) {
 
 function renderHistory() {
   const filtered = getFilteredHistory();
-  const items = currentView === "clients" ? getClients(filtered) : filtered;
+  let items = currentView === "clients" ? getClients(filtered) : filtered;
+  if (currentInsight === "old") {
+    const oldDigits = new Set(getClients(loadHistory()).filter(isOldClient).map((client) => client.phoneDigits));
+    items = items.filter((item) => oldDigits.has(item.phoneDigits || getPhoneDigits(item.phone)));
+  }
   historyList.innerHTML = "";
 
   const totalPages = Math.max(1, Math.ceil(items.length / HISTORY_PAGE_SIZE));
@@ -424,6 +531,10 @@ function renderHistory() {
 }
 
 function getEmptyHistoryMessage(noRecords) {
+  if (currentInsight === "yesterday") return "Nenhum pós-venda de ontem.";
+  if (currentInsight === "credit") return "Nenhuma venda no crediário ainda.";
+  if (currentInsight === "finishing") return "Nenhum cliente terminando de pagar agora.";
+  if (currentInsight === "old") return "Nenhum cliente com mais de 1 ano.";
   if (noRecords && !historySearchInput.value && !historyDateInput.value) {
     return currentView === "clients"
       ? "Nenhum cliente salvo ainda. Envie um pós-venda para começar."
@@ -454,10 +565,19 @@ function createClientItem(item) {
   product.className = "chip";
   product.textContent = item.product || "Produto não informado";
 
-  const details = document.createElement("span");
-  details.textContent = `${item.count} ${item.count === 1 ? "atendimento" : "atendimentos"} · ${item.date}`;
+  const sale = document.createElement("span");
+  sale.className = item.credit ? "chip chip-credit" : "chip chip-muted";
+  sale.textContent = item.credit && item.installments
+    ? `Crediário ${item.installments}x`
+    : "À vista";
 
-  body.append(title, phone, product, details);
+  const details = document.createElement("span");
+  const extra = [];
+  if (isFinishingSoon(item)) extra.push("terminando de pagar");
+  if (isOldClient(item)) extra.push("cliente de 1 ano+");
+  details.textContent = `${item.count} ${item.count === 1 ? "atendimento" : "atendimentos"} · ${item.date}${extra.length ? ` · ${extra.join(" · ")}` : ""}`;
+
+  body.append(title, phone, product, sale, details);
 
   const actions = document.createElement("div");
   actions.className = "history-item-actions";
@@ -488,17 +608,20 @@ function createMessageItem(item) {
   const date = document.createElement("span");
   date.textContent = item.date;
 
+  li.appendChild(title);
+  li.appendChild(date);
   if (item.product) {
     const product = document.createElement("span");
     product.className = "history-product";
     product.textContent = `Produto: ${item.product}`;
-    li.appendChild(title);
-    li.appendChild(date);
     li.appendChild(product);
-  } else {
-    li.appendChild(title);
-    li.appendChild(date);
   }
+  const sale = document.createElement("span");
+  sale.className = "history-product";
+  sale.textContent = item.credit && item.installments
+    ? `Crediário ${item.installments}x`
+    : "À vista";
+  li.appendChild(sale);
 
   const message = document.createElement("p");
   message.textContent = item.message;
@@ -519,11 +642,18 @@ function createMessageItem(item) {
 }
 
 function fillFormForReoffer(item) {
-  messageMode = "reoffer";
+  if (isFinishingSoon(item)) {
+    messageMode = "finish";
+  } else if (isOldClient(item)) {
+    messageMode = "old";
+  } else {
+    messageMode = "reoffer";
+  }
   userEditedMessage = false;
   nameInput.value = item.name || "";
   phoneInput.value = formatPhone(item.phone || item.phoneDigits || "");
   productInput.value = item.product || "";
+  setCreditSale(Boolean(item.credit), item.installments || "");
   clearInputError(nameInput, nameError);
   clearInputError(phoneInput, phoneError);
   toggleMessage.checked = true;
@@ -685,6 +815,9 @@ function handleSubmit(event) {
   const encodedMessage = encodeURIComponent(message.normalize("NFC"));
   const url = `https://api.whatsapp.com/send?phone=55${phoneDigits}&text=${encodedMessage}`;
 
+  const credit = Boolean(creditToggle?.checked);
+  const installments = credit ? Number(installmentsInput.value) || 0 : 0;
+
   saveHistory({
     id: createHistoryId(),
     name,
@@ -694,6 +827,8 @@ function handleSubmit(event) {
     message,
     date: new Date().toLocaleString("pt-BR"),
     dateISO: new Date().toISOString(),
+    credit,
+    installments,
   });
 
   window.open(url, "_blank", "noopener,noreferrer");
@@ -706,8 +841,10 @@ function resetFormAfterSubmit() {
   nameInput.value = "";
   phoneInput.value = "";
   productInput.value = "";
+  setCreditSale(false, "");
   clearInputError(nameInput, nameError);
   clearInputError(phoneInput, phoneError);
+  if (installmentsError) installmentsError.textContent = "";
   userEditedMessage = false;
   messageMode = "thanks";
   toggleMessage.checked = false;
@@ -760,9 +897,46 @@ saveMessageBtn.addEventListener("click", () => {
   showToast("Mensagem padrão salva.", "success");
 });
 
+function setCreditSale(enabled, installments = "") {
+  if (!creditToggle) return;
+  creditToggle.checked = Boolean(enabled);
+  installmentsField?.classList.toggle("hidden", !enabled);
+  if (installmentsInput) {
+    installmentsInput.value = enabled && installments ? String(installments) : "";
+  }
+}
+
+function setInsight(nextInsight) {
+  currentInsight = currentInsight === nextInsight ? "" : nextInsight;
+  insightFilters?.querySelectorAll(".insight-chip").forEach((button) => {
+    button.classList.toggle("active", button.dataset.insight === currentInsight);
+  });
+  if (currentInsight === "yesterday") {
+    historyDateInput.value = yesterdayKey();
+  } else if (historyDateInput.value === yesterdayKey()) {
+    historyDateInput.value = "";
+  }
+  currentHistoryPage = 1;
+  renderHistory();
+}
+
+creditToggle?.addEventListener("change", () => {
+  setCreditSale(creditToggle.checked, installmentsInput.value);
+});
+
+insightFilters?.addEventListener("click", (event) => {
+  const button = event.target.closest(".insight-chip");
+  if (!button) return;
+  setInsight(button.dataset.insight || "");
+});
+
 copyBtn.addEventListener("click", handleCopy);
 form.addEventListener("submit", handleSubmit);
 historyDateInput.addEventListener("change", () => {
+  if (currentInsight === "yesterday" && historyDateInput.value !== yesterdayKey()) {
+    currentInsight = "";
+    insightFilters?.querySelectorAll(".insight-chip").forEach((button) => button.classList.remove("active"));
+  }
   currentHistoryPage = 1;
   renderHistory();
 });

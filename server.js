@@ -30,7 +30,7 @@ app.all("/api/history", handleHistory);
 app.use(express.static(__dirname));
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
+  res.sendFile(path.join(__dirname, "login.html"));
 });
 
 app.listen(PORT, "0.0.0.0", () => {

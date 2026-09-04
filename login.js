@@ -129,6 +129,10 @@ async function handleSubmit(event) {
   }
 }
 
+if (localStorage.getItem(LOGIN_TOKEN_KEY)) {
+  window.location.href = "/index.html";
+}
+
 authAltBtn.addEventListener("click", () => setMode(mode === "register" ? "login" : "register"));
 form.addEventListener("submit", handleSubmit);
 setMode("login");

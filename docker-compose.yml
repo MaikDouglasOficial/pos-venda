@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATA_DIR: /app/data
+      JWT_SECRET: ${JWT_SECRET}
+    volumes:
+      - posvenda-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  posvenda-data:

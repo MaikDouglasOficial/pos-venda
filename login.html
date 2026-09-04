@@ -2,53 +2,91 @@
 <html lang="pt-br">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b1f14" />
     <title>Pós Venda Facil</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Work+Sans:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="login.css" />
   </head>
-  <body>
-    <div class="brand-strip"></div>
+  <body class="login-body">
+    <div class="orb orb-a" aria-hidden="true"></div>
+    <div class="orb orb-b" aria-hidden="true"></div>
     <div class="login-wrapper">
       <div class="login-card">
-        <p class="eyebrow">Acesso restrito</p>
-        <h1>Pós Venda Facil</h1>
-        <p class="subtitle">Insira seu usuário e senha para acessar o painel</p>
+        <h1>Pós Venda Fácil</h1>
+        <p class="subtitle" id="authSubtitle">Entre para ver seus clientes salvos.</p>
 
         <form id="loginForm" class="form" novalidate>
           <div class="field">
             <label for="username">Usuário</label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              placeholder="Digite seu usuário"
-              aria-describedby="userError"
-            />
+            <div class="input-shell">
+              <span class="input-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8" />
+                  <path d="M5 19c1-3.2 3.6-5 7-5s6 1.8 7 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+              </span>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                autocomplete="username"
+                aria-describedby="userError"
+              />
+            </div>
             <small class="error" id="userError" role="alert" aria-live="assertive"></small>
           </div>
 
           <div class="field">
             <label for="password">Senha</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Digite sua senha"
-              aria-describedby="passError"
-            />
+            <div class="input-shell">
+              <span class="input-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.8" />
+                  <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+              </span>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autocomplete="new-password"
+                aria-describedby="passError"
+              />
+            </div>
             <small class="error" id="passError" role="alert" aria-live="assertive"></small>
           </div>
 
-          <div class="actions login-actions">
-            <button type="submit" class="btn primary">Entrar</button>
+          <div class="field hidden" id="confirmField">
+            <label for="confirmPassword">Confirmar senha</label>
+            <div class="input-shell">
+              <span class="input-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.8" />
+                  <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+              </span>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                autocomplete="new-password"
+                aria-describedby="confirmError"
+              />
+            </div>
+            <small class="error" id="confirmError" role="alert" aria-live="assertive"></small>
           </div>
+
+          <div class="actions login-actions">
+            <button type="submit" class="btn primary" id="submitBtn">Entrar</button>
+          </div>
+          <button type="button" class="auth-alt" id="authAltBtn">Ainda não tem acesso? Criar agora</button>
           <small class="error" id="loginError" role="alert" aria-live="assertive"></small>
         </form>
       </div>

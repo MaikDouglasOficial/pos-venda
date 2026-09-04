@@ -31,8 +31,12 @@ function setMode(nextMode) {
   confirmError.textContent = "";
 }
 
+function fieldValue(input) {
+  return String(input?.value || "").trim();
+}
+
 function validateUsername() {
-  const value = usernameInput.value.trim();
+  const value = fieldValue(usernameInput);
   if (!value) {
     userError.textContent = "Informe o usuário.";
     return false;
@@ -46,7 +50,7 @@ function validateUsername() {
 }
 
 function validatePassword() {
-  const value = passwordInput.value.trim();
+  const value = fieldValue(passwordInput);
   if (!value) {
     passError.textContent = "Informe a senha.";
     return false;
@@ -64,11 +68,11 @@ function validateConfirm() {
     confirmError.textContent = "";
     return true;
   }
-  if (!confirmInput.value.trim()) {
+  if (!fieldValue(confirmInput)) {
     confirmError.textContent = "Confirme a senha.";
     return false;
   }
-  if (confirmInput.value.trim() !== passwordInput.value.trim()) {
+  if (fieldValue(confirmInput) !== fieldValue(passwordInput)) {
     confirmError.textContent = "As senhas não coincidem.";
     return false;
   }
@@ -95,8 +99,8 @@ async function handleSubmit(event) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        username: usernameInput.value.trim(),
-        password: passwordInput.value.trim(),
+        username: fieldValue(usernameInput),
+        password: fieldValue(passwordInput),
       }),
     });
 

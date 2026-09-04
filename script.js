@@ -35,7 +35,8 @@ const historyDateInput = document.querySelector("#historyDate");
 const historyPagination = document.querySelector("#historyPagination");
 const logoutBtn = document.querySelector("#logoutBtn");
 const toggleMessage = document.querySelector("#toggleMessage");
-const messageField = messageInput.closest(".field");
+const messageField = document.querySelector("#messageWrap") || messageInput.closest(".field");
+const historySegment = document.querySelector("#historySegment");
 const loggedUser = document.querySelector("#loggedUser");
 const saveMessageBtn = document.querySelector("#saveMessageBtn");
 const toast = document.querySelector("#toast");
@@ -237,7 +238,7 @@ function getPhoneDigits(value = phoneInput.value) {
 }
 
 function validateName() {
-  const value = nameInput.value.trim();
+  const value = controlValue(nameInput).trim();
   if (!value) {
     setInputError(nameInput, nameError, "Informe o nome do cliente.");
     return false;
@@ -261,11 +262,11 @@ function validatePhone() {
 }
 
 function validateInstallments() {
-  if (!creditToggle?.checked) {
+  if (!isToggled(creditToggle)) {
     if (installmentsError) installmentsError.textContent = "";
     return true;
   }
-  const value = Number(installmentsInput.value);
+  const value = Number(controlValue(installmentsInput));
   if (!value || value < 2) {
     setInputError(installmentsInput, installmentsError, "Informe as parcelas (mínimo 2).");
     return false;
@@ -279,18 +280,35 @@ function validateForm() {
   const isPhoneValid = validatePhone();
   const isInstallmentsValid = validateInstallments();
   if (!isNameValid) {
-    nameInput.focus();
+    focusControl(nameInput);
     return false;
   }
   if (!isPhoneValid) {
-    phoneInput.focus();
+    focusControl(phoneInput);
     return false;
   }
   if (!isInstallmentsValid) {
-    installmentsInput.focus();
+    focusControl(installmentsInput);
     return false;
   }
   return true;
+}
+
+function controlValue(input) {
+  return String(input?.value || "");
+}
+
+function isToggled(input) {
+  return Boolean(input?.checked);
+}
+
+function focusControl(input) {
+  if (!input) return;
+  if (typeof input.setFocus === "function") {
+    input.setFocus();
+    return;
+  }
+  input.focus?.();
 }
 
 function setInputError(input, errorElement, message) {
@@ -450,8 +468,8 @@ function matchesSearch(item, query) {
 
 function getFilteredHistory() {
   const history = loadHistory();
-  const selectedDate = historyDateInput.value;
-  const query = historySearchInput.value.trim().toLowerCase();
+  const selectedDate = controlValue(historyDateInput);
+  const query = controlValue(historySearchInput).trim().toLowerCase();
   return history.filter((item) => {
     const matchesDate = selectedDate ? item.dateISO && item.dateISO.startsWith(selectedDate) : true;
     if (!matchesDate || !matchesSearch(item, query)) return false;
@@ -535,7 +553,7 @@ function getEmptyHistoryMessage(noRecords) {
   if (currentInsight === "credit") return "Nenhuma venda no crediário ainda.";
   if (currentInsight === "finishing") return "Nenhum cliente terminando de pagar agora.";
   if (currentInsight === "old") return "Nenhum cliente com mais de 1 ano.";
-  if (noRecords && !historySearchInput.value && !historyDateInput.value) {
+  if (noRecords && !controlValue(historySearchInput) && !controlValue(historyDateInput)) {
     return currentView === "clients"
       ? "Nenhum cliente salvo ainda. Envie um pós-venda para começar."
       : "Sem atendimentos registrados ainda.";
@@ -674,9 +692,9 @@ function fillFormForReoffer(item) {
   toggleMessage.checked = true;
   messageField.classList.remove("hidden");
   messageInput.disabled = false;
-  setMessageIfNotEdited(nameInput.value);
+  setMessageIfNotEdited(controlValue(nameInput));
   setMobileView("compose");
-  nameInput.focus();
+  focusControl(nameInput);
   showToast("Cliente carregado. Revise a mensagem e envie.", "success");
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -711,8 +729,9 @@ function renderPagination(totalPages) {
 function setHistoryView(view) {
   currentView = view;
   currentHistoryPage = 1;
-  tabClients.classList.toggle("active", view === "clients");
-  tabMessages.classList.toggle("active", view === "messages");
+  if (historySegment) historySegment.value = view;
+  tabClients?.classList.toggle("active", view === "clients");
+  tabMessages?.classList.toggle("active", view === "messages");
   renderHistory();
 }
 
@@ -823,20 +842,20 @@ function handleSubmit(event) {
     return;
   }
 
-  const name = nameInput.value.trim();
+  const name = controlValue(nameInput).trim();
   const phoneDigits = getPhoneDigits();
-  const product = productInput.value.trim();
-  const message = messageInput.value.trim();
+  const product = controlValue(productInput).trim();
+  const message = controlValue(messageInput).trim();
   const encodedMessage = encodeURIComponent(message.normalize("NFC"));
   const url = `https://api.whatsapp.com/send?phone=55${phoneDigits}&text=${encodedMessage}`;
 
-  const credit = Boolean(creditToggle?.checked);
-  const installments = credit ? Number(installmentsInput.value) || 0 : 0;
+  const credit = isToggled(creditToggle);
+  const installments = credit ? Number(controlValue(installmentsInput)) || 0 : 0;
 
   saveHistory({
     id: createHistoryId(),
     name,
-    phone: phoneInput.value.trim(),
+    phone: controlValue(phoneInput).trim(),
     phoneDigits,
     product,
     message,
@@ -868,34 +887,49 @@ function resetFormAfterSubmit() {
   setMessageIfNotEdited("");
 }
 
-nameInput.addEventListener("input", () => {
+onFieldInput(nameInput, () => {
   validateName();
-  setMessageIfNotEdited(nameInput.value);
+  setMessageIfNotEdited(controlValue(nameInput));
 });
 
-phoneInput.addEventListener("input", () => {
-  phoneInput.value = formatPhone(phoneInput.value);
-  phoneInput.setSelectionRange(phoneInput.value.length, phoneInput.value.length);
+function onFieldInput(el, handler) {
+  el?.addEventListener("input", handler);
+  el?.addEventListener("ionInput", handler);
+}
+
+function onToggleChange(el, handler) {
+  el?.addEventListener("change", handler);
+  el?.addEventListener("ionChange", handler);
+}
+
+phoneInput.addEventListener("input", handlePhoneMask);
+phoneInput.addEventListener("ionInput", handlePhoneMask);
+
+function handlePhoneMask() {
+  phoneInput.value = formatPhone(controlValue(phoneInput));
+  if (typeof phoneInput.setSelectionRange === "function") {
+    phoneInput.setSelectionRange(phoneInput.value.length, phoneInput.value.length);
+  }
   validatePhone();
-});
+}
 
-productInput.addEventListener("input", () => {
+onFieldInput(productInput, () => {
   if (messageMode === "reoffer") {
-    setMessageIfNotEdited(nameInput.value);
+    setMessageIfNotEdited(controlValue(nameInput));
   }
 });
 
-messageInput.addEventListener("input", () => {
+onFieldInput(messageInput, () => {
   userEditedMessage = true;
 });
 
-toggleMessage.addEventListener("change", () => {
-  const shouldShow = toggleMessage.checked;
+onToggleChange(toggleMessage, () => {
+  const shouldShow = isToggled(toggleMessage);
   messageField.classList.toggle("hidden", !shouldShow);
   messageInput.disabled = !shouldShow;
   if (!shouldShow) {
     userEditedMessage = false;
-    setMessageIfNotEdited(nameInput.value);
+    setMessageIfNotEdited(controlValue(nameInput));
   }
 });
 
@@ -935,8 +969,8 @@ function setInsight(nextInsight) {
   renderHistory();
 }
 
-creditToggle?.addEventListener("change", () => {
-  setCreditSale(creditToggle.checked, installmentsInput.value);
+onToggleChange(creditToggle, () => {
+  setCreditSale(isToggled(creditToggle), controlValue(installmentsInput));
 });
 
 insightFilters?.addEventListener("click", (event) => {
@@ -947,23 +981,31 @@ insightFilters?.addEventListener("click", (event) => {
 
 copyBtn.addEventListener("click", handleCopy);
 form.addEventListener("submit", handleSubmit);
-historyDateInput.addEventListener("change", () => {
-  if (currentInsight === "yesterday" && historyDateInput.value !== yesterdayKey()) {
+historyDateInput.addEventListener("change", () => historyDateInput.dispatchEvent(new Event("ionChange")));
+historyDateInput.addEventListener("ionChange", () => {
+  if (currentInsight === "yesterday" && controlValue(historyDateInput) !== yesterdayKey()) {
     currentInsight = "";
     insightFilters?.querySelectorAll(".insight-chip").forEach((button) => button.classList.remove("active"));
   }
   currentHistoryPage = 1;
   renderHistory();
 });
-historySearchInput.addEventListener("input", () => {
+onFieldInput(historySearchInput, () => {
   currentHistoryPage = 1;
   renderHistory();
 });
-tabClients.addEventListener("click", () => setHistoryView("clients"));
-tabMessages.addEventListener("click", () => setHistoryView("messages"));
+historySegment?.addEventListener("ionChange", (event) => {
+  setHistoryView(event.detail?.value || "clients");
+});
+tabClients?.addEventListener("click", () => setHistoryView("clients"));
+tabMessages?.addEventListener("click", () => setHistoryView("messages"));
 navCompose?.addEventListener("click", () => setMobileView("compose"));
 navClients?.addEventListener("click", () => setMobileView("clients"));
 exportHistoryBtn.addEventListener("click", exportHistory);
+document.querySelector(".import-label")?.addEventListener("click", (event) => {
+  event.preventDefault();
+  importHistoryInput?.click();
+});
 importHistoryInput.addEventListener("change", (event) => {
   const file = event.target.files && event.target.files[0];
   importHistory(file);

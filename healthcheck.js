@@ -1,6 +1,7 @@
 const http = require("http");
 
-const request = http.get("http://127.0.0.1:3000/api/health", (response) => {
+const port = process.env.PORT || 3000;
+const request = http.get(`http://127.0.0.1:${port}/api/health`, (response) => {
   process.exit(response.statusCode === 200 ? 0 : 1);
 });
 

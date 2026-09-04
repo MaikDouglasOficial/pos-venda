@@ -19,18 +19,19 @@ Sistema web simples para criar e enviar mensagens de pos-venda via WhatsApp, com
    http://localhost:3000/login.html
    ```
 
-## Deploy na Vercel
+## Deploy no Coolify
 
-1. Importe o repositorio no painel da Vercel.
-2. Configure as variaveis de ambiente no projeto:
-   - `ADMIN_USER`
-   - `ADMIN_PASSWORD`
-   - `JWT_SECRET`
-3. Realize o deploy.
-
-As rotas de login e verificacao sao servidas pelas funcoes em `/api`.
-
-\- Atualizacao para forcar redeploy.
+1. Crie um Application apontando para este repositorio, branch `main`.
+2. Build Pack: **Dockerfile** (ou **Docker Compose** se quiser o volume automatico).
+3. Porta: `3000`.
+4. Variaveis:
+   - `JWT_SECRET` = frase longa e secreta
+   - `NODE_ENV` = `production`
+   - `PORT` = `3000`
+   - `DATA_DIR` = `/app/data`
+5. Persistent Storage: destino `/app/data`.
+6. Healthcheck: caminho `/api/health`, porta `3000`.
+7. Deixe pre/post-deployment vazios e faca o deploy.
 
 ## Funcionalidades
 

@@ -1,6 +1,10 @@
+const fs = require("fs");
 const path = require("path");
 const express = require("express");
 require("dotenv").config();
+
+const dataDir = process.env.DATA_DIR || path.join(__dirname, "data");
+fs.mkdirSync(dataDir, { recursive: true });
 
 const {
   handleLogin,

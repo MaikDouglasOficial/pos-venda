@@ -6,6 +6,7 @@ require("dotenv").config();
 const dataDir = process.env.DATA_DIR || path.join(__dirname, "data");
 fs.mkdirSync(dataDir, { recursive: true });
 
+const store = require("./lib/store");
 const {
   handleLogin,
   handleRegister,
@@ -19,7 +20,11 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json({ limit: "2mb" }));
 
 app.get("/api/health", (req, res) => {
-  res.json({ ok: true });
+  res.json({
+    ok: true,
+    storage: store.storageMode(),
+    dataDir,
+  });
 });
 
 app.post("/api/login", handleLogin);
@@ -35,4 +40,5 @@ app.get("/", (req, res) => {
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on http://0.0.0.0:${PORT}`);
+  console.log(`Storage: ${store.storageMode()} (${dataDir})`);
 });

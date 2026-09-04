@@ -31,7 +31,10 @@ Sistema web simples para criar e enviar mensagens de pos-venda via WhatsApp, com
    - `DATA_DIR` = `/app/data`
    - `DATABASE_URL` = URL interna do PostgreSQL do Coolify
    - `DATABASE_SSL` = `false` (banco interno do Coolify)
-5. Persistent Storage do app: destino `/app/data`.
+5. Persistent Storage do app (obrigatorio sem PostgreSQL):
+   - Add Volume Mount
+   - Destination Path: `/app/data`
+   Sem isso, cada deploy apaga usuarios e clientes.
 6. Healthcheck: caminho `/api/health`, porta `3000`.
 7. Deixe pre/post-deployment vazios e faca o deploy.
 
